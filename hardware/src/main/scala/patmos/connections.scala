@@ -394,6 +394,7 @@ class CoprocessorIO() extends Bundle()
 {
   val patmosCop = new PatmosToCoprocessor().asOutput
   val copPatmos = new CoprocessorToPatmos().asInput  
+  val memPort = new OcpBurstMasterPort(EXTMEM_ADDR_WIDTH, DATA_WIDTH, BURST_LENGTH)
 }
 
 //stack cache
