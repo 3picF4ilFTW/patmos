@@ -340,6 +340,9 @@ class ExecuteIO() extends Bundle() {
   //stack cache
   val exsc = new ExSc().asOutput
   val scex = new ScEx().asInput
+  // coprocessor
+  val cop_out = Vec(COP_COUNT, new PatmosToCoprocessor().asOutput)
+  val cop_in = Vec(COP_COUNT, new CoprocessorToPatmos().asInput)
 }
 
 class BootMemIO() extends Bundle() {
@@ -377,17 +380,25 @@ class MemoryIO() extends Bundle() {
 
 class PatmosToCoprocessor() extends Bundle()
 {
-  val ena_in  = Bool(OUTPUT)
-  val trigger = Bool(OUTPUT)
-  val read    = Bool(OUTPUT)
-  val funcId  = Vec(PIPE_COUNT, UInt(width = COP_FUNCID_WIDTH) )
+  val ena_in  = Bool()
+  val trigger = Bool()
+  val read    = Bool()
+  val funcId  = UInt(width = COP_FUNCID_WIDTH)
   val opData  = Vec(2, UInt(width = DATA_WIDTH) )
+  
+  def defaults() = {
+    ena_in := Bool(false)
+    trigger := Bool(false)
+    read := Bool(false)
+    funcId := UInt(0)
+    opData := Vec.fill(2) { UInt(0) }
+  }
 }
 
 class CoprocessorToPatmos() extends Bundle()
 {
-  val ena_out = Bool(INPUT)
-  val result  = Vec(PIPE_COUNT, UInt(width = COP_ID_WIDTH) )
+  val ena_out = Bool()
+  val result  = UInt(width = DATA_WIDTH)
 }
 
 class CoprocessorIO() extends Bundle()
