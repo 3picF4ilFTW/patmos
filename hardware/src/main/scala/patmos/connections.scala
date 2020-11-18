@@ -99,8 +99,8 @@ class MemOp() extends Bundle() {
 
 class CopOp() extends Bundle() {
   val isCop = Bool()
-  val copId = Vec(PIPE_COUNT, UInt(width = COP_ID_WIDTH) )
-  val funcId = Vec(PIPE_COUNT, UInt(width = COP_FUNCID_WIDTH) )
+  val copId = UInt(width = COP_ID_WIDTH)
+  val funcId = UInt(width = COP_FUNCID_WIDTH)
 
   def defaults() = {
     isCop := Bool(false)
