@@ -157,6 +157,7 @@ class DecEx() extends Bundle() {
     jmpOp.defaults()
     memOp.defaults()
     stackOp := sc_OP_NONE
+    copOp.map(_.defaults())
     rsAddr := Vec.fill(2*PIPE_COUNT) { UInt(0) }
     rsData := Vec.fill(2*PIPE_COUNT) { UInt(0) }
     rdAddr := Vec.fill(PIPE_COUNT) { UInt(0) }
