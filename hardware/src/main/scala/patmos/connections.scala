@@ -365,7 +365,7 @@ class MemoryIO() extends Bundle() {
 class ExcCopCtrl() extends Bundle()
 { 
   val copId = Vec(PIPE_COUNT, UInt(width = COP_ID_WIDTH) )
-  val funcId = Vec(PIPE_COUNT, UInt(width = COP_ID_WIDTH) )
+  val funcId = Vec(PIPE_COUNT, UInt(width = COP_FUNCID_WIDTH) )
 
   val wrRd = Bool(INPUT)
   
