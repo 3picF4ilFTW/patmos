@@ -97,6 +97,18 @@ class MemOp() extends Bundle() {
   }
 }
 
+class CopOp() extends Bundle() {
+  val isCop = Bool()
+  val copId = Vec(PIPE_COUNT, UInt(width = COP_ID_WIDTH) )
+  val funcId = Vec(PIPE_COUNT, UInt(width = COP_FUNCID_WIDTH) )
+
+  def defaults() = {
+    isCop := Bool(false)
+    copId := UInt(0)
+    funcId := UInt(0)
+  }
+}
+
 class DecEx() extends Bundle() {
   val pc = UInt(width = PC_SIZE)
   val base = UInt(width = PC_SIZE)
@@ -107,6 +119,7 @@ class DecEx() extends Bundle() {
   val jmpOp = new JmpOp()
   val memOp = new MemOp()
   val stackOp = UInt(width = SC_OP_BITS)
+  val copOp = Vec(PIPE_COUNT, new CopOp() )
 
   // the register fields are very similar to RegFileRead
   // maybe join the structures
