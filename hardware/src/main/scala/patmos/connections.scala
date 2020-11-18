@@ -324,7 +324,8 @@ class DecodeIO() extends Bundle() {
 }
 
 class ExecuteIO() extends Bundle() {
-  val ena = Bool(INPUT)
+  val ena_in = Bool(INPUT)
+  val ena_out = Bool(OUTPUT)
   val flush = Bool(INPUT)
   val brflush = Bool(OUTPUT)
   val decex = new DecEx().asInput
@@ -372,6 +373,30 @@ class MemoryIO() extends Bundle() {
   val icacheIllMem = Bool(INPUT)
   val scacheIllMem = Bool(INPUT)
   val exc = new MemExc().asOutput
+}
+
+class ExcCopCtrl() extends Bundle()
+{ 
+  val copId = Vec(PIPE_COUNT, UInt(width = COP_ID_WIDTH) )
+  val funcId = Vec(PIPE_COUNT, UInt(width = COP_FUNCID_WIDTH) )
+
+  val wrRd = Bool(INPUT)
+  
+  val opData = Vec(2, UInt(width = DATA_WIDTH) )
+}
+
+class CopCtrlExc() extends Bundle()
+{
+  val result = Vec(PIPE_COUNT, UInt(width = COP_ID_WIDTH) )
+}
+
+class CopControlIO() extends Bundle()
+{
+  val excCopCtrl = new ExcCopCtrl().asInput
+  val copCtrlExc = new CopCtrlExc().asOutput
+
+  val ena_in = Bool(INPUT)
+  val ena_out = Bool(OUTPUT)
 }
 
 //stack cache
