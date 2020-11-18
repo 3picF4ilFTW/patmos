@@ -205,4 +205,8 @@ object Constants {
 
   def SC_OP_BITS = 3
   val sc_OP_NONE :: sc_OP_SET_ST :: sc_OP_SET_MT :: sc_OP_RES :: sc_OP_ENS :: sc_OP_FREE :: sc_OP_SPILL :: Nil = Enum(UInt(), 7)
+
+  val COP_ID_WIDTH      = 3
+  val COP_FUNCID_WIDTH  = 5
+
 }
