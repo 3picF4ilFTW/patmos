@@ -375,28 +375,25 @@ class MemoryIO() extends Bundle() {
   val exc = new MemExc().asOutput
 }
 
-class ExcCopCtrl() extends Bundle()
-{ 
-  val copId = Vec(PIPE_COUNT, UInt(width = COP_ID_WIDTH) )
-  val funcId = Vec(PIPE_COUNT, UInt(width = COP_FUNCID_WIDTH) )
-
-  val wrRd = Bool(INPUT)
-  
-  val opData = Vec(2, UInt(width = DATA_WIDTH) )
+class PatmosToCoprocessor() extends Bundle()
+{
+  val ena_in  = Bool(OUTPUT)
+  val trigger = Bool(OUTPUT)
+  val read    = Bool(OUTPUT)
+  val funcId  = Vec(PIPE_COUNT, UInt(width = COP_FUNCID_WIDTH) )
+  val opData  = Vec(2, UInt(width = DATA_WIDTH) )
 }
 
-class CopCtrlExc() extends Bundle()
+class CoprocessorToPatmos() extends Bundle()
 {
-  val result = Vec(PIPE_COUNT, UInt(width = COP_ID_WIDTH) )
+  val ena_out = Bool(INPUT)
+  val result  = Vec(PIPE_COUNT, UInt(width = COP_ID_WIDTH) )
 }
 
-class CopControlIO() extends Bundle()
+class CoprocessorIO() extends Bundle()
 {
-  val excCopCtrl = new ExcCopCtrl().asInput
-  val copCtrlExc = new CopCtrlExc().asOutput
-
-  val ena_in = Bool(INPUT)
-  val ena_out = Bool(OUTPUT)
+  val patmosCop = new PatmosToCoprocessor().asOutput
+  val copPatmos = new CoprocessorToPatmos().asInput  
 }
 
 //stack cache
