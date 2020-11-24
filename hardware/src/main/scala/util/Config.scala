@@ -79,6 +79,9 @@ abstract class Config {
   case class DeviceConfig(name : String, params : Map[String, String], offset : Int, intrs : List[Int])
   val Devs: List[Config#DeviceConfig]
 
+  case class CoprocessorConfig(name : String, CoprocessorID : Int, requiresMemoryAccess : Boolean, isBlackBox : Boolean, externalPath : String)
+  val Coprocessors: List[Config#CoprocessorConfig]
+
   override def toString =
     description + " at " + (frequency/1000000).toString() + " MHz"
 }
@@ -286,7 +289,10 @@ object Config {
       emuConfig.write("#define FREQ "+ frequency +"\n")
       emuConfig.close();
       
-
+      
+      val CopList = ((node \ "Coprocessors") \ "Coprocessor")
+      val Coprocessors : List[Config#CoprocessorConfig] =  CopList.map(copFromXML(_, CopList)).toList ++ defaultConf.Coprocessors
+      
       private def devFromXML(node: scala.xml.Node, devs: scala.xml.NodeSeq,
                              needOffset: Boolean = true): DeviceConfig = {
         val key = find(node, "@DevTypeRef").text
@@ -319,6 +325,36 @@ object Config {
                          (if (!intrs.isEmpty) ", interrupts: "+intrs else ""))
         new DeviceConfig(name, params, offset, intrs)
       }
+
+      private def copFromXML(node: scala.xml.Node, copList: scala.xml.NodeSeq): CoprocessorConfig = {
+        
+        val cop = copList(0)
+        val name = find(cop, "@Name").text
+        val id = find(cop, "@CoprocessorID").text.toInt
+        
+        val memAccessStr = (node \ "@requiresMemoryAccess").text
+        val memAccess = if (memAccessStr.isEmpty) {
+          false
+        } else {
+          memAccessStr.toBoolean
+        }
+
+        val externalPathAttr = (node \ "@externalPath").text
+        val externalPath = if (externalPathAttr.isEmpty) {
+          ""
+        } else {
+          externalPathAttr
+        }
+
+        val isBlackBox = if (externalPath.isEmpty) {
+          false
+        } else {
+          true
+        }
+        
+        println("Coprocessor:" +name +",ID:"+id+", requires Memory Access:"+memAccess + (if (isBlackBox) ", Coprocessor is BlackBox, External Path "+externalPath else ""))
+        new CoprocessorConfig(name, id, memAccess, isBlackBox, externalPath)
+      }
     }
   }
 
@@ -343,6 +379,7 @@ object Config {
     val DSPM = new SPMConfig(0)
     val ExtMem = new ExtMemConfig(0,new DeviceConfig("", Map(), -1, List[Int]()))
     val Devs = List[DeviceConfig]()
+    val Coprocessors = List[CoprocessorConfig]()
   }
 
   private var conf: Config = nullConfig
