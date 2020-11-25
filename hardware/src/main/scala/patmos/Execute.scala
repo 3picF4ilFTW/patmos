@@ -15,8 +15,7 @@ import Constants._
 class Execute() extends Module {
   val io = IO(new ExecuteIO())
 
-  // TODO: compute enable_cop based on cop-operation
-  val enable_cop = (true)
+  val enable_cop = Bool(true)
   io.ena_out := enable_cop
 
   val exReg = Reg(new DecEx())
@@ -371,9 +370,9 @@ class Execute() extends Module {
   io.exicache.callRetAddr := callRetAddr(31,2)
 
   // coprocessor handling
-  val copStarted = RegInit(Bool(false))
-  io.cop_out.foreach(_.defaults())
-  if (COP_COUNT) {
+  if (COP_COUNT > 0) {
+    val copStarted = RegInit(Bool(false))
+    io.cop_out.map(_.defaults())
     when(exReg.copOp.isCop) {
       io.cop_out(exReg.copOp.copId).ena_in := io.ena_in
       io.cop_out(exReg.copOp.copId).trigger := io.ena_in && !copStarted

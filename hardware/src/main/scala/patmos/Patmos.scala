@@ -123,15 +123,17 @@ class PatmosCore(binFile: String, nr: Int, cnt: Int) extends Module {
   burstBus.io.master.S <> mmu.io.virt.S
 
   // Enable signals for memory stage, method cache and stack cache
-  memory.io.ena_in := icache.io.ena_out && !dcache.io.scIO.stall
-  icache.io.ena_in := memory.io.ena_out && !dcache.io.scIO.stall
-  dcache.io.scIO.ena_in := memory.io.ena_out && icache.io.ena_out
+  memory.io.ena_in := icache.io.ena_out && !dcache.io.scIO.stall && execute.io.ena_out
+  icache.io.ena_in := memory.io.ena_out && !dcache.io.scIO.stall && execute.io.ena_out
+  dcache.io.scIO.ena_in := memory.io.ena_out && icache.io.ena_out && execute.io.ena_out
+
+  // Enable signals for execute stage
+  execute.io.ena_in := memory.io.ena_out && icache.io.ena_out && !dcache.io.scIO.stall
 
   // Enable signal
-  val enable = memory.io.ena_out & icache.io.ena_out & !dcache.io.scIO.stall
+  val enable = memory.io.ena_out & icache.io.ena_out & !dcache.io.scIO.stall & execute.io.ena_out
   fetch.io.ena := enable
   decode.io.ena := enable
-  execute.io.ena := enable
   writeback.io.ena := enable
   exc.io.ena := enable
   val enableReg = Reg(next = enable)
@@ -427,7 +429,7 @@ class Patmos(configFile: String, binFile: String, datFile: String) extends Modul
   // Connect memory controller
   val ramConf = Config.getConfig.ExtMem.ram
   val ramCtrl = Config.createDevice(ramConf).asInstanceOf[BurstDevice]
-  val copCount = Config.getConfig.coprocessorCount
+  val copCount = COP_COUNT
 
   registerPins(ramConf.name, ramCtrl.io)
 

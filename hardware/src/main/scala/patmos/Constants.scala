@@ -210,7 +210,7 @@ object Constants {
   def COP_CUSTOM_BIT = "b0".U(1.W)
   def COP_READ_BIT = "b1".U(1.W)
   val COP_ID_WIDTH      = 3
-  val COP_COUNT         = 8
+  val COP_COUNT         = util.Config.getConfig.coprocessorCount
   val COP_FUNCID_WIDTH  = 5
 
 }
