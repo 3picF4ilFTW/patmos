@@ -81,6 +81,7 @@ abstract class Config {
 
   case class CoprocessorConfig(name : String, CoprocessorID : Int, requiresMemoryAccess : Boolean, isBlackBox : Boolean, externalPath : String)
   val Coprocessors: List[Config#CoprocessorConfig]
+  val coprocessorsCount: Int
 
   override def toString =
     description + " at " + (frequency/1000000).toString() + " MHz"
@@ -292,6 +293,7 @@ object Config {
       
       val CopList = ((node \ "Coprocessors") \ "Coprocessor")
       val Coprocessors : List[Config#CoprocessorConfig] =  CopList.map(copFromXML(_, CopList)).toList ++ defaultConf.Coprocessors
+      val coprocessorsCount : Coprocessors.size
       
       private def devFromXML(node: scala.xml.Node, devs: scala.xml.NodeSeq,
                              needOffset: Boolean = true): DeviceConfig = {
