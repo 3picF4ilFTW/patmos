@@ -38,6 +38,7 @@ import Chisel._
 import patmos._
 import io.CoreDevice
 import io.Device
+import cop.Coprocessor
 
 import scala.tools.nsc.interpreter.IMain
 import scala.tools.nsc.Settings
@@ -416,5 +417,22 @@ object Config {
     val meth = clazz.getMethods.find(_.getName == "create").get
     val rawDev = meth.invoke(null, dev.params)
     rawDev.asInstanceOf[Device]
+  }
+
+  def initCoprocessor(cop : Config#CoprocessorConfig) = {
+    // get class for coprocessor
+    val clazz = Class.forName("cop."+cop.name)
+    // create device instance
+    val meth = clazz.getMethods.find(_.getName == "init").get
+    meth.invoke(null, cop)
+  }
+
+  def createCoprocessor(cop : Config#DeviceConfig) : Coprocessor = {
+    // get class for device
+    val clazz = Class.forName("cop."+cop.name)
+    // create device instance
+    val meth = clazz.getMethods.find(_.getName == "create").get
+    val rawCop = meth.invoke(null, cop)
+    rawCop.asInstanceOf[Coprocessor]
   }
 }
