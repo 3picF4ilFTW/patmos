@@ -15,7 +15,7 @@ import Constants._
 class Execute() extends Module {
   val io = IO(new ExecuteIO())
 
-  val enable_cop = Bool(true)
+  val enable_cop = Wire(Bool(true))
   io.ena_out := enable_cop
 
   val exReg = Reg(new DecEx())
