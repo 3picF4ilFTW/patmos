@@ -427,19 +427,40 @@ class Patmos(configFile: String, binFile: String, datFile: String) extends Modul
   // Connect memory controller
   val ramConf = Config.getConfig.ExtMem.ram
   val ramCtrl = Config.createDevice(ramConf).asInstanceOf[BurstDevice]
+  val copCount = Config.getConfig.coprocessorCount
 
   registerPins(ramConf.name, ramCtrl.io)
 
   // TODO: fix memory arbiter to have configurable memory timing.
   // E.g., it does not work with on-chip main memory.
-  if (cores.length == 1) {
+  if (cores.length + copCount == 1) {
     ramCtrl.io.ocp.M <> cores(0).io.memPort.M
     cores(0).io.memPort.S <> ramCtrl.io.ocp.S
   } else {
-    val memarbiter = Module(new ocp.TdmArbiterWrapper(nrCores, ADDR_WIDTH, DATA_WIDTH, BURST_LENGTH))
+    
+    val memarbiterCount = if(copCount>0)
+    {
+      copCount * (1+nrCores)
+    }
+    else
+    {
+      nrCores
+    } 
+
+    val memarbiter = Module(new ocp.TdmArbiterWrapper(memarbiterCount, ADDR_WIDTH, DATA_WIDTH, BURST_LENGTH))
     for (i <- (0 until cores.length)) {
-      memarbiter.io.master(i).M <> cores(i).io.memPort.M
-      cores(i).io.memPort.S <> memarbiter.io.master(i).S
+      var arbiterEntry = i * (copCount + 1)
+      memarbiter.io.master(arbiterEntry).M <> cores(i).io.memPort.M
+      cores(i).io.memPort.S <> memarbiter.io.master(arbiterEntry).S
+
+      arbiterEntry = arbiterEntry +1
+      
+      for(j <- (0 until copCount)) {
+        arbiterEntry = arbiterEntry +1
+        // TODO: currently dummy 
+        // memarbiter.io.master(arbiterEntry).M <> coreCopIfs(i).io.copIf(j).memPort.M
+        // coreCopIfs(i).io.copIf(j).memPort.S <> memarbiter.io.master(arbiterEntry).S
+      }
     }
     ramCtrl.io.ocp.M <> memarbiter.io.slave.M
     memarbiter.io.slave.S <> ramCtrl.io.ocp.S
