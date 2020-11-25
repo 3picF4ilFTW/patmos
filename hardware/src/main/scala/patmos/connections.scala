@@ -119,8 +119,7 @@ class DecEx() extends Bundle() {
   val jmpOp = new JmpOp()
   val memOp = new MemOp()
   val stackOp = UInt(width = SC_OP_BITS)
-  if(COP_COUNT > 0)
-    val copOp = new CopOp()
+  val copOp = new CopOp()
 
   // the register fields are very similar to RegFileRead
   // maybe join the structures
@@ -158,8 +157,7 @@ class DecEx() extends Bundle() {
     jmpOp.defaults()
     memOp.defaults()
     stackOp := sc_OP_NONE
-    if(COP_COUNT > 0)
-      copOp.defaults()
+    copOp.defaults()
     rsAddr := Vec.fill(2*PIPE_COUNT) { UInt(0) }
     rsData := Vec.fill(2*PIPE_COUNT) { UInt(0) }
     rdAddr := Vec.fill(PIPE_COUNT) { UInt(0) }

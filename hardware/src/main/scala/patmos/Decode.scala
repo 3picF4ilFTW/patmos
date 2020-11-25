@@ -345,13 +345,13 @@ class Decode() extends Module {
     when(opcode === OPCODE_COP)
     {
       val copId = instr(6, 4)
-      io.decex.copOp(0).isCop := Bool(true)
+      io.decex.copOp.isCop := Bool(true)
 
       //custom
       when(instr(0) === COP_CUSTOM_BIT)
       {
-        io.decex.copOp(0).copId := copId
-        io.decex.copOp(0).funcId := Cat("b00".U , instr(3, 1))
+        io.decex.copOp.copId := copId
+        io.decex.copOp.funcId := Cat("b00".U , instr(3, 1))
         io.decex.wrRd(0) := Bool(true)
         decoded(0) := Bool(true)
       }.otherwise
@@ -359,15 +359,15 @@ class Decode() extends Module {
         when(instr(1) === COP_READ_BIT)
         {
           //read
-          io.decex.copOp(0).copId := copId
-          io.decex.copOp(0).funcId := instr(11, 7)
+          io.decex.copOp.copId := copId
+          io.decex.copOp.funcId := instr(11, 7)
           io.decex.wrRd(0) := Bool(true)
           decoded(0) := Bool(true)
         }.otherwise
         {
           //write
-          io.decex.copOp(0).copId := copId
-          io.decex.copOp(0).funcId := instr(21, 17)
+          io.decex.copOp.copId := copId
+          io.decex.copOp.funcId := instr(21, 17)
           io.decex.wrRd(0) := Bool(false)
           decoded(0) := Bool(true)
         }
