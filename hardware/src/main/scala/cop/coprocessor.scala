@@ -14,7 +14,10 @@ abstract class CoprocessorObject() {
   def create(config: Config#CoprocessorConfig) : Coprocessor
 }
 
-
 abstract class Coprocessor() extends Module() {
     val io = new  CoprocessorIO()
+}
+
+abstract class CoprocessorMemory() extends Coprocessor(){
+    val memPort = new OcpBurstMasterPort(EXTMEM_ADDR_WIDTH, DATA_WIDTH, BURST_LENGTH)
 }
