@@ -80,7 +80,7 @@ abstract class Config {
   case class DeviceConfig(name : String, params : Map[String, String], offset : Int, intrs : List[Int])
   val Devs: List[Config#DeviceConfig]
 
-  case class CoprocessorConfig(name : String, CoprocessorID : Int, requiresMemoryAccess : Boolean, isBlackBox : Boolean, externalPath : String)
+  case class CoprocessorConfig(name : String, params : Map[String, String], CoprocessorID : Int, requiresMemoryAccess : Boolean, isBlackBox : Boolean, externalPath : String)
   val Coprocessors: List[Config#CoprocessorConfig]
   val coprocessorCount: Int
 
@@ -354,9 +354,17 @@ object Config {
         } else {
           true
         }
+
+        val paramsNode = (copList \ "params")
+        val params = if (paramsNode.isEmpty) {
+          Map[String,String]()
+        } else {
+          Map((paramsNode \ "param").map(p => find(p, "@name").text ->
+            find(p, "@value").text) : _*)
+        }
         
         println("Coprocessor:" +name +",ID:"+id+", requires Memory Access:"+memAccess + (if (isBlackBox) ", Coprocessor is BlackBox, External Path "+externalPath else ""))
-        new CoprocessorConfig(name, id, memAccess, isBlackBox, externalPath)
+        new CoprocessorConfig(name, params, id, memAccess, isBlackBox, externalPath)
       }
     }
   }

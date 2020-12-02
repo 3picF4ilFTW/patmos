@@ -8,9 +8,9 @@ import ocp._
 
 object Dummy extends CoprocessorObject {
 
-  def init(config: Config#CoprocessorConfig) = {}
+  def init(params: Map[String, String]) = {}
 
-  def create(config: Config#CoprocessorConfig): Dummy = Module(new Dummy())
+  def create(params: Map[String, String]): Dummy = Module(new Dummy())
 }
 
 class Dummy() extends Coprocessor() {

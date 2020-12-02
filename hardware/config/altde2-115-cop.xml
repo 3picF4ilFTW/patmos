@@ -44,7 +44,11 @@
   </Devs>
 
   <Coprocessors>
-    <Coprocessor Name="Dummy" CoprocessorID="0"/>
+    <Coprocessor Name="Dummy" CoprocessorID="0">
+        <params>
+			<param name="param1" value="1" />
+		</params>
+    </Coprocessor>
   </Coprocessors>
   
 </patmos>

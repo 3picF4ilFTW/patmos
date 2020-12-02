@@ -10,8 +10,8 @@ import ocp._
 
 abstract class CoprocessorObject() {
   // every device object must have methods "create" and "init"
-  def init(config: Config#CoprocessorConfig)
-  def create(config: Config#CoprocessorConfig) : Coprocessor
+  def init(params: Map[String, String])
+  def create(params: Map[String, String]) : Coprocessor
 }
 
 abstract class Coprocessor() extends Module() {
