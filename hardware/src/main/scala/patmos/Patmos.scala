@@ -438,7 +438,7 @@ class Patmos(configFile: String, binFile: String, datFile: String) extends Modul
 
 
     // Instantiate coprocessors
-    for (k <- (0 until COP_COUNT)) {
+    for (k <- (0 until COP_COUNT-1)) {
       val copConf = Config.getConfig.Coprocessors(k)
       val id = copConf.CoprocessorID;
 
@@ -494,7 +494,7 @@ class Patmos(configFile: String, binFile: String, datFile: String) extends Modul
 
       arbiterEntry = arbiterEntry +1
       
-      for(j <- (0 until COP_COUNT)) {
+      for(j <- (0 until COP_COUNT-1)) {
         val copConf = Config.getConfig.Coprocessors(j)
         val id = copConf.CoprocessorID;
 
@@ -502,8 +502,8 @@ class Patmos(configFile: String, binFile: String, datFile: String) extends Modul
         {
           // as memory access is required object is actually of CoprocessorMemory
           val copMem = cops(i)(id).asInstanceOf[CoprocessorMemory]
-          //memarbiter.io.master(arbiterEntry).M <> copMem.memPort.M
-          //copMem.memPort.S <> memarbiter.io.master(arbiterEntry).S
+          memarbiter.io.master(arbiterEntry).M <> copMem.memPort.M
+          copMem.memPort.S <> memarbiter.io.master(arbiterEntry).S
           arbiterEntry = arbiterEntry +1
         }
     
