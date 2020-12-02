@@ -432,7 +432,7 @@ object Config {
     val clazz = Class.forName("cop."+cop.name)
     // create device instance
     val meth = clazz.getMethods.find(_.getName == "init").get
-    meth.invoke(null, cop)
+    meth.invoke(null, cop.params)
   }
 
   def createCoprocessor(cop : Config#CoprocessorConfig) : Coprocessor = {
@@ -440,7 +440,7 @@ object Config {
     val clazz = Class.forName("cop."+cop.name)
     // create device instance
     val meth = clazz.getMethods.find(_.getName == "create").get
-    val rawCop = meth.invoke(null, cop)
+    val rawCop = meth.invoke(null, cop.params)
     rawCop.asInstanceOf[Coprocessor]
   }
 }
