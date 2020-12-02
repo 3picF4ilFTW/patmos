@@ -15,7 +15,10 @@ abstract class CoprocessorObject() {
 }
 
 abstract class Coprocessor() extends Module() {
-    val io = new  CoprocessorIO()
+    val io = IO(new Bundle() {
+      val copIn = new PatmosToCoprocessor().asInput
+      val copOut = new CoprocessorToPatmos().asOutput  
+    })
 }
 
 abstract class CoprocessorMemory() extends Coprocessor(){
