@@ -18,6 +18,7 @@ import io._
 import datacache._
 import ocp.{OcpCoreSlavePort, _}
 import argo._
+import cop._
 
 import scala.collection.immutable.Stream.Empty
 import scala.collection.mutable
@@ -35,6 +36,7 @@ class PatmosCore(binFile: String, nr: Int, cnt: Int) extends Module {
     val memInOut = new OcpCoreMasterPort(ADDR_WIDTH, DATA_WIDTH)
     val excInOut = new OcpCoreSlavePort(ADDR_WIDTH, DATA_WIDTH)
     val mmuInOut = new OcpCoreSlavePort(ADDR_WIDTH, DATA_WIDTH)
+    val copInOut = Vec(COP_COUNT, new CoprocessorIO())
   })
 
   val icache =
@@ -169,6 +171,12 @@ class PatmosCore(binFile: String, nr: Int, cnt: Int) extends Module {
 
   // Keep signal alive for debugging
   //debug(enableReg) does nothing in chisel3 (no proning in frontend of chisel3 anyway)
+
+  // connect coprocessor to execute state 
+  for (i <- (0 until COP_COUNT)) {
+    io.copInOut(i).patmosCop <> execute.io.cop_out(i)
+    execute.io.cop_in(i) <> io.copInOut(i).copPatmos
+  }
 }
 
 trait HasPins {
@@ -272,6 +280,9 @@ class Patmos(configFile: String, binFile: String, datFile: String) extends Modul
       val name = dev.getClass.getSimpleName
     }
   })
+
+  val cops = Array.ofDim[Coprocessor](nrCores,COP_COUNT)
+  var memAccessCount = 0
 
   for (i <- (0 until nrCores)) {
 
@@ -424,25 +435,50 @@ class Patmos(configFile: String, binFile: String, datFile: String) extends Modul
 
     // Merge responses
     cores(i).io.memInOut.S.Resp := errRespReg | devios.map(e => getSlavePort(getIO(e.io, i)).S.Resp).fold(OcpResp.NULL)(_|_)
+
+
+    // Instantiate coprocessors
+    for (k <- (0 until COP_COUNT)) {
+      val copConf = Config.getConfig.Coprocessors(k)
+      val id = copConf.CoprocessorID;
+
+      cops(i)(k) = if(copConf.requiresMemoryAccess)
+      {
+        Config.createCoprocessor(copConf).asInstanceOf[CoprocessorMemory]
+      }
+      else
+      {
+        Config.createCoprocessor(copConf).asInstanceOf[Coprocessor]
+      }
+
+      if(copConf.requiresMemoryAccess)
+      {
+        memAccessCount = memAccessCount+1;
+      }
+
+      cops(i)(id).io.copIn <> cores(i).io.copInOut(k).patmosCop
+      cores(i).io.copInOut(k).copPatmos <> cops(i)(id).io.copOut
+    }
   }
 
   // Connect memory controller
   val ramConf = Config.getConfig.ExtMem.ram
   val ramCtrl = Config.createDevice(ramConf).asInstanceOf[BurstDevice]
-  val copCount = COP_COUNT
+  
 
   registerPins(ramConf.name, ramCtrl.io)
 
   // TODO: fix memory arbiter to have configurable memory timing.
   // E.g., it does not work with on-chip main memory.
-  if (cores.length + copCount == 1) {
+  if (cores.length + memAccessCount == 1) {
     ramCtrl.io.ocp.M <> cores(0).io.memPort.M
     cores(0).io.memPort.S <> ramCtrl.io.ocp.S
   } else {
     
-    val memarbiterCount = if(copCount>0)
+    // memAccessCount stores the totale number of required memory access ports
+    val memarbiterCount = if(memAccessCount>0)
     {
-      copCount * (1+nrCores)
+      memAccessCount +nrCores
     }
     else
     {
@@ -450,18 +486,27 @@ class Patmos(configFile: String, binFile: String, datFile: String) extends Modul
     } 
 
     val memarbiter = Module(new ocp.TdmArbiterWrapper(memarbiterCount, ADDR_WIDTH, DATA_WIDTH, BURST_LENGTH))
+    var arbiterEntry = 0
     for (i <- (0 until cores.length)) {
-      var arbiterEntry = i * (copCount + 1)
+      
       memarbiter.io.master(arbiterEntry).M <> cores(i).io.memPort.M
       cores(i).io.memPort.S <> memarbiter.io.master(arbiterEntry).S
 
       arbiterEntry = arbiterEntry +1
       
-      for(j <- (0 until copCount)) {
-        arbiterEntry = arbiterEntry +1
-        // TODO: currently dummy 
-        // memarbiter.io.master(arbiterEntry).M <> coreCopIfs(i).io.copIf(j).memPort.M
-        // coreCopIfs(i).io.copIf(j).memPort.S <> memarbiter.io.master(arbiterEntry).S
+      for(j <- (0 until COP_COUNT)) {
+        val copConf = Config.getConfig.Coprocessors(j)
+        val id = copConf.CoprocessorID;
+
+        if(copConf.requiresMemoryAccess)
+        {
+          // as memory access is required object is actually of CoprocessorMemory
+          val copMem = cops(i)(id).asInstanceOf[CoprocessorMemory]
+          //memarbiter.io.master(arbiterEntry).M <> copMem.memPort.M
+          //copMem.memPort.S <> memarbiter.io.master(arbiterEntry).S
+          arbiterEntry = arbiterEntry +1
+        }
+    
       }
     }
     ramCtrl.io.ocp.M <> memarbiter.io.slave.M
