@@ -427,7 +427,7 @@ object Config {
     meth.invoke(null, cop)
   }
 
-  def createCoprocessor(cop : Config#DeviceConfig) : Coprocessor = {
+  def createCoprocessor(cop : Config#CoprocessorConfig) : Coprocessor = {
     // get class for device
     val clazz = Class.forName("cop."+cop.name)
     // create device instance
