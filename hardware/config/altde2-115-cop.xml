@@ -49,6 +49,7 @@
 			<param name="param1" value="1" />
 		</params>
     </Coprocessor>
+    <Coprocessor Name="Fibonacci" CoprocessorID="1"/>
   </Coprocessors>
   
 </patmos>
