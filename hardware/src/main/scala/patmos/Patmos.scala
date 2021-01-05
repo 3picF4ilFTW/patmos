@@ -442,22 +442,23 @@ class Patmos(configFile: String, binFile: String, datFile: String) extends Modul
       val copConf = Config.getConfig.Coprocessors(k)
       val id = copConf.CoprocessorID;
 
-      cops(i)(k) = if(copConf.requiresMemoryAccess)
+      if(copConf.requiresMemoryAccess)
       {
-        Config.createCoprocessor(copConf).asInstanceOf[CoprocessorMemory]
+        val copMem = Config.createCoprocessor(copConf).asInstanceOf[Coprocessor_MemoryAccess]
+        copMem.io.copIn <> cores(i).io.copInOut(k).patmosCop
+        cores(i).io.copInOut(k).copPatmos <> copMem.io.copOut
+        memAccessCount = memAccessCount+1;
+        cops(i)(id) = copMem
+        
       }
       else
       {
-        Config.createCoprocessor(copConf).asInstanceOf[Coprocessor]
+        val copNoMem = Config.createCoprocessor(copConf).asInstanceOf[BaseCoprocessor]
+        copNoMem.io.copIn <> cores(i).io.copInOut(k).patmosCop
+        cores(i).io.copInOut(k).copPatmos <> copNoMem.io.copOut
+        cops(i)(id) = copNoMem
       }
-
-      if(copConf.requiresMemoryAccess)
-      {
-        memAccessCount = memAccessCount+1;
-      }
-
-      cops(i)(id).io.copIn <> cores(i).io.copInOut(k).patmosCop
-      cores(i).io.copInOut(k).copPatmos <> cops(i)(id).io.copOut
+      
     }
   }
 
@@ -501,7 +502,7 @@ class Patmos(configFile: String, binFile: String, datFile: String) extends Modul
         if(copConf.requiresMemoryAccess)
         {
           // as memory access is required object is actually of CoprocessorMemory
-          val copMem = cops(i)(id).asInstanceOf[CoprocessorMemory]
+          val copMem = cops(i)(id).asInstanceOf[Coprocessor_MemoryAccess]
           memarbiter.io.master(arbiterEntry).M <> copMem.io.memPort.M
           copMem.io.memPort.S <> memarbiter.io.master(arbiterEntry).S
           arbiterEntry = arbiterEntry +1

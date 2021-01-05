@@ -13,7 +13,7 @@ object Fibonacci extends CoprocessorObject {
   def create(params: Map[String, String]): Fibonacci = Module(new Fibonacci())
 }
 
-class Fibonacci() extends Coprocessor() {
+class Fibonacci() extends BaseCoprocessor() {
     //coprocessor definitions
     def FUNC_FIBONACCI = "b00010".U(5.W)
 

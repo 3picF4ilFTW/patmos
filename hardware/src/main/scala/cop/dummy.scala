@@ -14,7 +14,7 @@ object Dummy extends CoprocessorObject {
 }
 
 
-class Dummy() extends CoprocessorMemory() {
+class Dummy() extends Coprocessor_MemoryAccess() {
   //coprocessor definitions
   def FUNC_ADD = "b00000".U(5.W)
   def FUNC_ADD_STALL = "b00001".U(5.W)
