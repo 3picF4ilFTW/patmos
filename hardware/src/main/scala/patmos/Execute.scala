@@ -378,11 +378,11 @@ class Execute() extends Module {
       io.cop_out(exReg.copOp.copId).trigger := io.ena_in && !copStarted
       io.cop_out(exReg.copOp.copId).read := exReg.wrRd(0)
       io.cop_out(exReg.copOp.copId).funcId := exReg.copOp.funcId
-      io.cop_out(exReg.copOp.copId).opData(0) := exReg.rsData(0)
-      io.cop_out(exReg.copOp.copId).opData(1) := exReg.rsData(1)
-	  
-	  enable_cop := io.cop_in(exReg.copOp.copId).ena_out
-	  io.exmem.rd(0).data := io.cop_in(exReg.copOp.copId).result
+      io.cop_out(exReg.copOp.copId).opData(0) := op(0)
+      io.cop_out(exReg.copOp.copId).opData(1) := op(1)
+      
+      enable_cop := io.cop_in(exReg.copOp.copId).ena_out
+      io.exmem.rd(0).data := io.cop_in(exReg.copOp.copId).result
 	  
       when(io.ena_in) {
         copStarted := Bool(true)
