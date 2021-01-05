@@ -331,7 +331,13 @@ object Config {
 
       private def copFromXML(node: scala.xml.Node, copList: scala.xml.NodeSeq): CoprocessorConfig = {
         
-        val cop = copList(0)
+        val key = find(node, "@CoprocessorID").text
+        val devListFiltered = (copList.filter(d => (d \ "@CoprocessorID").text == key))
+        if (devListFiltered.isEmpty) {
+          sys.error("No CoprocessorID specification found for "+node)
+        }
+
+        val cop = devListFiltered(0)
         val name = find(cop, "@Name").text
         val id = find(cop, "@CoprocessorID").text.toInt
         
@@ -355,7 +361,7 @@ object Config {
           true
         }
 
-        val paramsNode = (copList \ "params")
+        val paramsNode = (cop \ "params")
         val params = if (paramsNode.isEmpty) {
           Map[String,String]()
         } else {
