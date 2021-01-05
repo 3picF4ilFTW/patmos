@@ -502,8 +502,8 @@ class Patmos(configFile: String, binFile: String, datFile: String) extends Modul
         {
           // as memory access is required object is actually of CoprocessorMemory
           val copMem = cops(i)(id).asInstanceOf[CoprocessorMemory]
-          memarbiter.io.master(arbiterEntry).M <> copMem.memPort.M
-          copMem.memPort.S <> memarbiter.io.master(arbiterEntry).S
+          memarbiter.io.master(arbiterEntry).M <> copMem.io.memPort.M
+          copMem.io.memPort.S <> memarbiter.io.master(arbiterEntry).S
           arbiterEntry = arbiterEntry +1
         }
     

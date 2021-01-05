@@ -22,5 +22,9 @@ abstract class Coprocessor() extends Module() {
 }
 
 abstract class CoprocessorMemory() extends Coprocessor(){
-    val memPort = new OcpBurstMasterPort(EXTMEM_ADDR_WIDTH, DATA_WIDTH, BURST_LENGTH)
+    override val io = IO(new Bundle() {
+      val copIn = new PatmosToCoprocessor().asInput
+      val copOut = new CoprocessorToPatmos().asOutput
+      val memPort = new OcpBurstMasterPort(EXTMEM_ADDR_WIDTH, DATA_WIDTH, BURST_LENGTH)
+    })
 }
