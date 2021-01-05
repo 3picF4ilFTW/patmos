@@ -44,7 +44,7 @@
   </Devs>
 
   <Coprocessors>
-    <Coprocessor Name="Dummy" CoprocessorID="0">
+    <Coprocessor Name="Dummy" CoprocessorID="0" requiresMemoryAccess="True">
         <params>
 			<param name="param1" value="1" />
 		</params>
