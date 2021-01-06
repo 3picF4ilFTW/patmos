@@ -2,7 +2,7 @@
 
 int main() {
 
-	int inputs[8] = {1, 2, 3, 3, 5, 6, 7, 8};
+	int inputs[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 	volatile int outputs[4] = {0, 0, 0, 0};
 
 	asm (	"mov $r3 = %[a]\n\t"
