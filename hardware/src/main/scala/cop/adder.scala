@@ -6,15 +6,15 @@ import patmos.Constants._
 import util._
 import ocp._
 
-object Dummy extends CoprocessorObject {
+object Adder extends CoprocessorObject {
 
   def init(params: Map[String, String]) = {}
 
-  def create(params: Map[String, String]): Dummy = Module(new Dummy())
+  def create(params: Map[String, String]): Adder = Module(new Adder())
 }
 
 
-class Dummy() extends Coprocessor_MemoryAccess() {
+class Adder() extends Coprocessor_MemoryAccess() {
   //coprocessor definitions
   def FUNC_ADD = "b00000".U(5.W)
   def FUNC_ADD_STALL = "b00001".U(5.W)
