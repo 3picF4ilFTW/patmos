@@ -18,7 +18,7 @@ class Adder() extends Coprocessor_MemoryAccess() {
   //coprocessor definitions
   def FUNC_ADD = "b00000".U(5.W)
   def FUNC_ADD_STALL = "b00001".U(5.W)
-  def FUNC_VECTOR_ADD = "b00011".U(5.W)
+  def FUNC_VECTOR_ADD = "b00010".U(5.W)
 
   // scalar state machine for ADD and ADD_STALL
   val scalar_idle :: scalar_add :: Nil = Enum(2)
