@@ -1,9 +1,9 @@
 //#include "include/bootable.h"
 
 int main() {
-	while(1){
+	while(1) {
 		int inputs[8] = {1, 2, 3, 4, 5, 6, 7, 8};
-		volatile int outputs[4] = {0, 0, 0, 0};
+		int outputs[4] = {0, 0, 0, 0};
 
 		asm (	"mov $r3 = %[a]\n\t"
 			"mov $r4 = %[b]\n\t"
@@ -22,17 +22,13 @@ int main() {
 				: "5");
 		}
 
-		int a = outputs[0];
-		int b = outputs[0];
-		int c = outputs[0];
-		int d = outputs[0];
-
-		asm (	"mov $r1 = %[a]\n\t"
-			"mov $r2 = %[b]\n\t"
-			"mov $r3 = %[c]\n\t"
-			"mov $r4 = %[d]\n\t"
+		asm (	//"nop\n\t"
+			"lwm $r1 = [%[a]]\n\t"
+			"lwm $r2 = [%[a] + 1]\n\t"
+			"lwm $r3 = [%[a] + 2]\n\t"
+			"lwm $r4 = [%[a] + 3]\n\t"
 			: 
-			: [a] "r" (a), [b] "r" (b), [c] "r" (c), [d] "r" (d)
+			: [a] "r" (outputs)
 			: "1", "2", "3", "4");
 	}
 }

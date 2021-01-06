@@ -146,6 +146,7 @@ class DecEx() extends Bundle() {
   def flush() = {
     pred := Vec.fill(PIPE_COUNT) { PRED_IFFALSE }
     illOp := Bool(false)
+    copOp.isCop := Bool(false)
   }
 
   def defaults() = {

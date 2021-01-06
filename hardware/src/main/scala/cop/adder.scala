@@ -132,7 +132,7 @@ class Adder() extends Coprocessor_MemoryAccess() {
       io.memPort.M.Addr := vector_dst
       io.memPort.M.Data := vector_acc(0)
       io.memPort.M.DataValid := UInt(1)
-      when(io.memPort.S.CmdAccept === UInt(1)) {
+      when(io.memPort.S.CmdAccept === UInt(1) && io.memPort.S.DataAccept === UInt(1)) {
         vector_cnt := UInt(1)
         vector_state := vector_write
       }
@@ -140,10 +140,12 @@ class Adder() extends Coprocessor_MemoryAccess() {
     is(vector_write) {
       io.memPort.M.Data := vector_acc(vector_cnt)
       io.memPort.M.DataValid := UInt(1)
-      when(vector_cnt < UInt(BURST_LENGTH - 1)) {
-        vector_cnt := vector_cnt + UInt(1)
-      }.otherwise {
-        vector_state := vector_done
+      when(io.memPort.S.DataAccept === UInt(1)) {
+        when(vector_cnt < UInt(BURST_LENGTH - 1)) {
+          vector_cnt := vector_cnt + UInt(1)
+        }.otherwise {
+          vector_state := vector_done
+        }
       }
     }
   }
