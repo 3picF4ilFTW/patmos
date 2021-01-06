@@ -101,10 +101,12 @@ class Adder() extends Coprocessor_MemoryAccess() {
     }
     is(vector_read1) {
       vector_acc(vector_cnt) := io.memPort.S.Data
-      when(vector_cnt < UInt(BURST_LENGTH - 1)) {
-        vector_cnt := vector_cnt + UInt(1)
-      }.otherwise {
-        vector_state := vector_read2_req
+      when(io.memport.S.Resp === OcpResp.DVA) {
+        when(vector_cnt < UInt(BURST_LENGTH - 1)) {
+          vector_cnt := vector_cnt + UInt(1)
+        }.otherwise {
+          vector_state := vector_read2_req
+        }
       }
     }
     is(vector_read2_req) {
@@ -117,10 +119,12 @@ class Adder() extends Coprocessor_MemoryAccess() {
     }
     is(vector_read2) {
       vector_acc(vector_cnt) := vector_acc(vector_cnt) + io.memPort.S.Data
-      when(vector_cnt < UInt(BURST_LENGTH - 1)) {
-        vector_cnt := vector_cnt + UInt(1)
-      }.otherwise {
-        vector_state := vector_write_req
+      when(io.memport.S.Resp === OcpResp.DVA) {
+        when(vector_cnt < UInt(BURST_LENGTH - 1)) {
+          vector_cnt := vector_cnt + UInt(1)
+        }.otherwise {
+          vector_state := vector_write_req
+        }
       }
     }
     is(vector_write_req) {
