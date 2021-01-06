@@ -101,7 +101,7 @@ class Adder() extends Coprocessor_MemoryAccess() {
     }
     is(vector_read1) {
       vector_acc(vector_cnt) := io.memPort.S.Data
-      when(io.memport.S.Resp === OcpResp.DVA) {
+      when(io.memPort.S.Resp === OcpResp.DVA) {
         when(vector_cnt < UInt(BURST_LENGTH - 1)) {
           vector_cnt := vector_cnt + UInt(1)
         }.otherwise {
@@ -119,7 +119,7 @@ class Adder() extends Coprocessor_MemoryAccess() {
     }
     is(vector_read2) {
       vector_acc(vector_cnt) := vector_acc(vector_cnt) + io.memPort.S.Data
-      when(io.memport.S.Resp === OcpResp.DVA) {
+      when(io.memPort.S.Resp === OcpResp.DVA) {
         when(vector_cnt < UInt(BURST_LENGTH - 1)) {
           vector_cnt := vector_cnt + UInt(1)
         }.otherwise {
