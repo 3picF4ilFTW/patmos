@@ -13,8 +13,7 @@ int main() {
 	// add r1 r2 -> r3
 	// add r3 r4 -> r5
 	// add r5 r6 -> r7
-	asm (	".word   88\n\t"
-		"mov $r1 = %[a]\n\t"
+	asm (	"mov $r1 = %[a]\n\t"
 		"mov $r2 = %[b]\n\t"
 		"mov $r4 = %[c]\n\t"
 		"mov $r6 = %[d]\n\t"
