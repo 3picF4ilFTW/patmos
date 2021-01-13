@@ -2,11 +2,11 @@
 
 int main() {
 
-	int opa = 1;
-	int opb = 2;
-	int opc = 4;
-	int opd = 8;
-	int res = 0;
+	unsigned int opa = 1;
+	unsigned int opb = 2;
+	unsigned int opc = (1 << 31) - 3;
+	unsigned int opd = 1 << 31;
+	unsigned int res = 0;
 
 	
 	// adds all operands together

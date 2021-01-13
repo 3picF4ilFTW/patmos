@@ -20,9 +20,10 @@ class Adder() extends Coprocessor_MemoryAccess() {
   def FUNC_ADD_STALL = "b00001".U(5.W)
   def FUNC_VECTOR_ADD = "b00010".U(5.W)
 
-  // scalar state machine for ADD and ADD_STALL
+  // scalar state machine for ADD and ADD_STALL (saturating)
   val scalar_idle :: scalar_add :: Nil = Enum(2)
   val scalar_state = Reg(init = scalar_idle)
+  val scalar_intermediate_result = Wire(UInt(width = DATA_WIDTH + 1))
   
   // vector state machine for VECTOR_ADD
   val vector_idle :: vector_read1_req :: vector_read1 :: vector_read2_req :: vector_read2 :: vector_write_req :: vector_write :: vector_done :: Nil = Enum(8)
@@ -33,6 +34,7 @@ class Adder() extends Coprocessor_MemoryAccess() {
   val vector_cnt = Reg(UInt(width = log2Ceil(BURST_LENGTH)))
 
   // default values
+  scalar_intermediate_result := io.copIn.opData(0) +& io.copIn.opData(1)
   io.copOut.result := UInt(0)
   io.copOut.ena_out := Bool(false)
 
@@ -43,7 +45,11 @@ class Adder() extends Coprocessor_MemoryAccess() {
       switch(io.copIn.funcId) {
         is(FUNC_ADD) {
           io.copOut.ena_out := Bool(true)
-          io.copOut.result := io.copIn.opData(0) + io.copIn.opData(1)
+          when(scalar_intermediate_result(DATA_WIDTH) === UInt(1, 1)) {
+            io.copOut.result := Fill(DATA_WIDTH, 1.U)
+          }.otherwise {
+            io.copOut.result := scalar_intermediate_result(DATA_WIDTH - 1, 0)
+          }
         }
         is(FUNC_ADD_STALL) {
           scalar_state := scalar_add
@@ -80,7 +86,11 @@ class Adder() extends Coprocessor_MemoryAccess() {
   // logic for ADD_STALL
   when(io.copIn.ena_in & scalar_state === scalar_add) {
     io.copOut.ena_out := Bool(true)
-    io.copOut.result := io.copIn.opData(0) + io.copIn.opData(1)
+    when(scalar_intermediate_result(DATA_WIDTH) === UInt(1, 1)) {
+      io.copOut.result := Fill(DATA_WIDTH, 1.U)
+    }.otherwise {
+      io.copOut.result := scalar_intermediate_result(DATA_WIDTH - 1, 0)
+    }
     scalar_state := scalar_idle
   }
   
