@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define INLINE_PREFIX static inline
-#define CORRECT_BUSY_START
+#define INLINE_PREFIX static inline       // usable for inlining of benchmark-related leaf-functions
+#define CORRECT_BUSY_START                // correct minor inaccuracies if detailed timing is enabled
+#define TIME_IDLE                         // enable timing of idle-periods (i.e. busy-waiting)
 
 /*----------------------------------------DEFINITIONS FOR SHA-256 IO-DEVICE------------------------------------------*/
 #define HASH_WORDS (8)                                        // 8 words per hash
@@ -151,15 +152,19 @@ void benchmark_hash(uint32_t *hash, uint32_t *busy_time_s, uint32_t *busy_time_r
   // send blocks
   while(!send_next_block())
   {
-    idle_start = get_time32();
-    busy_acc_s += (idle_start - busy_start);
+    #ifdef TIME_IDLE
+      idle_start = get_time32();
+      busy_acc_s += (idle_start - busy_start);
+    #endif
     
     busy_wait();
     
-    busy_start = get_time32();
-    idle_acc += (busy_start - idle_start);
-    #ifdef CORRECT_BUSY_START
-      busy_start = get_time32();  // correction to account for previous line
+    #ifdef TIME_IDLE
+      busy_start = get_time32();
+      idle_acc += (busy_start - idle_start);
+      #ifdef CORRECT_BUSY_START
+        busy_start = get_time32();  // correction to account for previous line
+      #endif
     #endif
   }
   idle_start = get_time32();
@@ -167,10 +172,14 @@ void benchmark_hash(uint32_t *hash, uint32_t *busy_time_s, uint32_t *busy_time_r
   
   busy_wait();
   
-  busy_start = get_time32();
-  idle_acc += (busy_start - idle_start);
-  #ifdef CORRECT_BUSY_START
-    busy_start = get_time32();  // correction to account for previous line
+  #ifdef TIME_IDLE
+    busy_start = get_time32();
+    idle_acc += (busy_start - idle_start);
+    #ifdef CORRECT_BUSY_START
+      busy_start = get_time32();  // correction to account for previous line
+    #endif
+  #else
+    busy_start = idle_start;
   #endif
   
   // hash array
