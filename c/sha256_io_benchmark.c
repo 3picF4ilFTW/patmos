@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#define INLINE_PREFIX static inline
+#define CORRECT_BUSY_START
+
 /*----------------------------------------DEFINITIONS FOR SHA-256 IO-DEVICE------------------------------------------*/
 #define HASH_WORDS (8)                                        // 8 words per hash
 #define BLOCK_WORDS (16)                                      // 16 words per data block
@@ -75,7 +78,7 @@ void reset()
 // send next block and start computation
 // returns true when last block has been sent
 // must only be called when prior computation is completed
-bool send_next_block()
+INLINE_PREFIX bool send_next_block()
 {
   uint32_t *buf = msg_buf_word + (msg_block_cursor * BLOCK_WORDS);
   for(int32_t i = 0; i < BLOCK_WORDS; ++i)
@@ -88,7 +91,7 @@ bool send_next_block()
 
 // retrieves the hash
 // must only be called when the computation is completed
-void retrieve_hash(uint32_t *hash)
+INLINE_PREFIX void retrieve_hash(uint32_t *hash)
 {
   for(int32_t i = 0; i < HASH_WORDS; ++i)
   {
@@ -98,7 +101,7 @@ void retrieve_hash(uint32_t *hash)
 
 // attempts to retrieve hash
 // returns true if successful
-bool try_retrieve_hash(uint32_t *hash)
+INLINE_PREFIX bool try_retrieve_hash(uint32_t *hash)
 {
   if(*sha_ptr == 0)
   {
@@ -109,7 +112,7 @@ bool try_retrieve_hash(uint32_t *hash)
 }
 
 // waits until the computation is completed
-void busy_wait()
+INLINE_PREFIX void busy_wait()
 {
   while(*sha_ptr);
 }
@@ -119,13 +122,13 @@ void busy_wait()
 _iodev_ptr_t timer_ptr_high = (_iodev_ptr_t)(PATMOS_IO_TIMER);
 _iodev_ptr_t timer_ptr_low = (_iodev_ptr_t)(PATMOS_IO_TIMER + 0x04);
 
-uint32_t get_time32()
+INLINE_PREFIX uint32_t get_time32()
 {
   return *timer_ptr_low;
 }
 
-// TODO: maybe replace this with some inline asm code
-uint64_t get_time64()
+// TODO: maybe replace this with some inline asm code (-O2 seems to generate correctly optimized code though)
+INLINE_PREFIX uint64_t get_time64()
 {
   uint64_t ret = *timer_ptr_low;
   ret |= ((uint64_t)*timer_ptr_high) << 32;
@@ -155,7 +158,9 @@ void benchmark_hash(uint32_t *hash, uint32_t *busy_time_s, uint32_t *busy_time_r
     
     busy_start = get_time32();
     idle_acc += (busy_start - idle_start);
-    busy_start = get_time32();  // correction to account for previous line
+    #ifdef CORRECT_BUSY_START
+      busy_start = get_time32();  // correction to account for previous line
+    #endif
   }
   idle_start = get_time32();
   busy_acc_s += (idle_start - busy_start);
@@ -164,7 +169,9 @@ void benchmark_hash(uint32_t *hash, uint32_t *busy_time_s, uint32_t *busy_time_r
   
   busy_start = get_time32();
   idle_acc += (busy_start - idle_start);
-  busy_start = get_time32();  // correction to account for previous line
+  #ifdef CORRECT_BUSY_START
+    busy_start = get_time32();  // correction to account for previous line
+  #endif
   
   // hash array
   retrieve_hash(hash);
