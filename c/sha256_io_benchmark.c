@@ -4,9 +4,10 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define INLINE_PREFIX static inline       // usable for inlining of benchmark-related leaf-functions
-#define CORRECT_BUSY_START                // correct minor inaccuracies if detailed timing is enabled
-#define TIME_IDLE                         // enable timing of idle-periods (i.e. busy-waiting)
+#define INLINE_PREFIX static inline                   // for inlining of benchmark-related leaf-functions
+#define DATA_ALIGNMENT __attribute__((aligned(16)))   // for burst-length alignment of msg- and hash-buffers
+#define CORRECT_BUSY_START                            // correct minor inaccuracies if detailed timing is enabled
+#define TIME_IDLE                                     // enable timing of idle-periods (i.e. busy-waiting)
 
 /*----------------------------------------DEFINITIONS FOR SHA-256 IO-DEVICE------------------------------------------*/
 #define HASH_WORDS (8)                                        // 8 words per hash
@@ -27,7 +28,7 @@ _iodev_ptr_t sha_ptr_write = (_iodev_ptr_t)0xf00b0080;
 _iodev_ptr_t sha_ptr_read = (_iodev_ptr_t)0xf00b0040;
 
 // SHA-256 message state
-char msg_buf[MAX_MSG_BYTES] = { 0x00 };
+char msg_buf[MAX_MSG_BYTES] DATA_ALIGNMENT = { 0x00 };
 uint32_t *msg_buf_word = (uint32_t *)msg_buf;
 uint32_t msg_blocks = 0;
 uint32_t msg_block_cursor = 0;
@@ -216,11 +217,15 @@ const char *benchmark_strings[] = { "",
 uint32_t benchmark_string_count = sizeof(benchmark_strings) / sizeof(benchmark_strings[0]);
 
 int main(int argc, char **argv) {
-  uint32_t hash[HASH_WORDS];
+  printf("addr: %p\n", msg_buf);
+
+  uint32_t hash[HASH_WORDS] DATA_ALIGNMENT;
   uint32_t busy_time_s;
   uint32_t busy_time_r;
   uint32_t idle_time;
   bool success;
+  
+  printf("addr: %p\n", hash);
   
   for(uint32_t i = 0; i < benchmark_string_count; ++i)
   {
