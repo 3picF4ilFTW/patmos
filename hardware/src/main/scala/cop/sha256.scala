@@ -243,6 +243,7 @@ class Sha256() extends Coprocessor_MemoryAccess() {
   io.copOut.result := 0.U
   io.copOut.ena_out := Bool(false)
   
+  
   // start operation
   when(io.copIn.trigger & io.copIn.ena_in) {
     when(io.copIn.isCustom) {
@@ -314,9 +315,10 @@ class Sha256() extends Coprocessor_MemoryAccess() {
       msg(word_count(MSG_WORD_COUNT_WIDTH - 1, 0)) := io.memPort.S.Data
       when(io.memPort.S.Resp === OcpResp.DVA) {
         when(word_count(BURST_OFFSET - 1, 0) < UInt(BURST_LENGTH - 1)) {
-          word_count := word_count + UInt(1)
+          word_count := word_count + 1.U
         }.otherwise {
           when(word_count(MSG_WORD_COUNT_WIDTH - 1, BURST_OFFSET) < UInt(BURSTS_PER_MSG - 1)) {
+            word_count := word_count + 1.U
             block_addr := block_addr + UInt(BURST_ADDR_OFFSET)
             mem_state := mem_read_req_m
           }.otherwise {
@@ -337,9 +339,10 @@ class Sha256() extends Coprocessor_MemoryAccess() {
       hash(word_count(HASH_WORD_COUNT_WIDTH - 1, 0)) := io.memPort.S.Data
       when(io.memPort.S.Resp === OcpResp.DVA) {
         when(word_count(BURST_OFFSET - 1, 0) < UInt(BURST_LENGTH - 1)) {
-          word_count := word_count + UInt(1)
+          word_count := word_count + 1.U
         }.otherwise {
           when(word_count(HASH_WORD_COUNT_WIDTH - 1, BURST_OFFSET) < UInt(BURSTS_PER_MSG - 1)) {
+          word_count := word_count + 1.U
             hash_addr := hash_addr + UInt(BURST_ADDR_OFFSET)
             mem_state := mem_read_req_h
           }.otherwise {
@@ -366,9 +369,10 @@ class Sha256() extends Coprocessor_MemoryAccess() {
       io.memPort.M.DataValid := 1.U
       when(io.memPort.S.DataAccept === UInt(1)) {
         when(word_count(BURST_OFFSET - 1, 0) < UInt(BURST_LENGTH - 1)) {
-          word_count := word_count + UInt(1)
+          word_count := word_count + 1.U
         }.otherwise {
           when(word_count(HASH_WORD_COUNT_WIDTH - 1, BURST_OFFSET) < UInt(BURSTS_PER_MSG - 1)) {
+            word_count := word_count + 1.U
             hash_addr := hash_addr + UInt(BURST_ADDR_OFFSET)
             mem_state := mem_write_req_h
           }.otherwise {
