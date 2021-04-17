@@ -94,7 +94,6 @@ INLINE_PREFIX void send_blocks()
 {
   register volatile _UNCACHED uint32_t *msg_buf_word_reg __asm__ ("19") = msg_buf_word;
   register uint32_t msg_blocks_reg __asm__ ("20") = msg_blocks;
-  printf("send_blocks: %p %lu\n", msg_buf_word_reg, msg_blocks_reg);
   asm (".word 0x34B3A01"      // unpredicated COP_WRITE to COP0 with FUNC = 00101, RA = 10011, RB = 10100
         :
         : "r"(msg_buf_word_reg), "r"(msg_blocks_reg));
@@ -116,7 +115,8 @@ INLINE_PREFIX void busy_wait()
   register uint32_t flag __asm__ ("18") = 1;
   while(flag)
   {
-	  asm (	".word 0x3680083"   // unpredicated COP_READ to COP0 with FUNC = 00001, RA = 00000, RD = 10010
+    //printf("flag: %lu\n", flag);
+	  asm (	".word 0x3640083"   // unpredicated COP_READ to COP0 with FUNC = 00001, RA = 00000, RD = 10010
 		      : "=r"(flag)
 		      :
 		      : "18");
