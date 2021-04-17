@@ -74,10 +74,10 @@ class Sha256() extends Coprocessor_MemoryAccess() {
   // coprocessor function definitions
   val FUNC_RESET            = "b00000".U(5.W)   // reset hash state (COP_WRITE)
   val FUNC_POLL             = "b00001".U(5.W)   // check whether computation is in progress (COP_READ)
-  val FUNC_SET_HASH         = "b00001".U(5.W)   // set the hash state (COP_WRITE src_addr)
-  val FUNC_GET_HASH         = "b00010".U(5.W)   // get the hash state (COP_WRITE dest_addr) 
-  val FUNC_SINGLE_BLOCK     = "b00011".U(5.W)   // hash a single block (COP_WRITE src_addr)
-  val FUNC_MULTIPLE_BLOCKS  = "b00100".U(5.W)   // hash multiple blocks (COP_WRITE src_addr block_count)
+  val FUNC_SET_HASH         = "b00010".U(5.W)   // set the hash state (COP_WRITE src_addr)
+  val FUNC_GET_HASH         = "b00011".U(5.W)   // get the hash state (COP_WRITE dest_addr) 
+  val FUNC_SINGLE_BLOCK     = "b00100".U(5.W)   // hash a single block (COP_WRITE src_addr)
+  val FUNC_MULTIPLE_BLOCKS  = "b00101".U(5.W)   // hash multiple blocks (COP_WRITE src_addr block_count)
 
   // general helper constants
   val BURSTS_PER_MSG = MSG_WORD_COUNT / BURST_LENGTH
@@ -250,7 +250,7 @@ class Sha256() extends Coprocessor_MemoryAccess() {
     }.elsewhen(io.copIn.read) {
       switch(io.copIn.funcId) {
         is(FUNC_POLL) {
-          io.copOut.result := Cat(UInt(0, width = DATA_WIDTH-1), stateReg =/= idle)
+          io.copOut.result := Cat(UInt(0, width = DATA_WIDTH - 1), !is_idle)
           io.copOut.ena_out := Bool(true)
         }
       }
