@@ -316,9 +316,9 @@ class Sha256() extends Coprocessor_MemoryAccess() {
         when(word_count(BURST_OFFSET - 1, 0) < UInt(BURST_LENGTH - 1)) {
           word_count := word_count + 1.U
         }.otherwise {
+          block_addr := block_addr + UInt(BURST_ADDR_OFFSET)
           when(word_count(MSG_WORD_COUNT_WIDTH - 1, BURST_OFFSET) < UInt(BURSTS_PER_MSG - 1)) {
             word_count := word_count + 1.U
-            block_addr := block_addr + UInt(BURST_ADDR_OFFSET)
             mem_state := mem_read_req_m
           }.otherwise {
             word_count := 0.U
@@ -343,9 +343,9 @@ class Sha256() extends Coprocessor_MemoryAccess() {
         when(word_count(BURST_OFFSET - 1, 0) < UInt(BURST_LENGTH - 1)) {
           word_count := word_count + 1.U
         }.otherwise {
+          hash_addr := hash_addr + UInt(BURST_ADDR_OFFSET)
           when(word_count(HASH_WORD_COUNT_WIDTH - 1, BURST_OFFSET) < UInt(BURSTS_PER_HASH - 1)) {
-          word_count := word_count + 1.U
-            hash_addr := hash_addr + UInt(BURST_ADDR_OFFSET)
+            word_count := word_count + 1.U
             mem_state := mem_read_req_h
           }.otherwise {
             word_count := 0.U
@@ -371,9 +371,9 @@ class Sha256() extends Coprocessor_MemoryAccess() {
         when(word_count(BURST_OFFSET - 1, 0) < UInt(BURST_LENGTH - 1)) {
           word_count := word_count + 1.U
         }.otherwise {
+          hash_addr := hash_addr + UInt(BURST_ADDR_OFFSET)
           when(word_count(HASH_WORD_COUNT_WIDTH - 1, BURST_OFFSET) < UInt(BURSTS_PER_HASH - 1)) {
             word_count := word_count + 1.U
-            hash_addr := hash_addr + UInt(BURST_ADDR_OFFSET)
             mem_state := mem_write_req_h
           }.otherwise {
             word_count := 0.U

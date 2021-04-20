@@ -147,6 +147,7 @@ void benchmark_hash(uint32_t *busy_time_s, uint32_t *busy_time_r, uint32_t *idle
 {  
   // perform SHA-256 device reset
   reset();
+  asm volatile ("" ::: "memory");
   
   uint32_t busy_acc_s = 0;
   uint32_t busy_acc_r = 0;
