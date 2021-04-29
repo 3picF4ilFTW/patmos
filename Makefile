@@ -36,8 +36,8 @@ VENDOR?=Altera
 #BOARD=bemicro
 #BOARD?=altde2-70
 BOARD?=altde2-115
-#BOARD?=altde10-NANO-oc
 #BOARD?=altde2-115-cop
+#BOARD?=altde10-NANO-oc
 
 # Where to put elf files and binaries
 BUILDDIR?=$(CURDIR)/tmp
