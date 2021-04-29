@@ -25,7 +25,7 @@ abstract class BaseCoprocessor() extends Coprocessor(){
     })
 }
 
-abstract class Coprocessor_MemoryAccess() extends Coprocessor(){
+abstract class CoprocessorMemoryAccess() extends Coprocessor(){
     override val io = IO(new Bundle() {
         val copIn = new PatmosToCoprocessor().asInput
         val copOut = new CoprocessorToPatmos().asOutput
